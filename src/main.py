@@ -15,6 +15,9 @@ class Main:
         self._hub_connection = None
         self.HOST = os.environ["HVAC_HOST"]
         self.TOKEN = os.environ["HVAC_TOKEN"]
+        self.NB_TICKS = int(os.environ["HVAC_NB_TICKS"])
+        self.TEMP_MAX = int(os.environ["TEMP_MAX"])
+        self.TEMP_MIN = int(os.environ["TEMP_MIN"])
     
     def __del__(self):
         if (self._hub_connection != None):
@@ -61,10 +64,10 @@ class Main:
             print(err)
     
     def analyzeDatapoint(self, date, data):
-        if (data >= 80.0):                
-            self.sendActionToHvac(date, "TurnOnAc", 6)
-        elif (data <= 20.0):                
-            self.sendActionToHvac(date, "TurnOnHeater", 6)
+        if (data >= self.TEMP_MAX):                
+            self.sendActionToHvac(date, "TurnOnAc", self.NB_TICKS)
+        elif (data <= self.TEMP_MIN):                
+            self.sendActionToHvac(date, "TurnOnHeater", self.NB_TICKS)
 
     def sendActionToHvac(self, date, action, nbTick):
         r = requests.get(f"{self.HOST}/api/hvac/{self.TOKEN}/{action}/{nbTick}") 
