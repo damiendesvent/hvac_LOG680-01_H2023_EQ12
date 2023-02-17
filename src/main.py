@@ -6,6 +6,9 @@ import json
 import time
 import os
 import mysql.connector as mysql
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Main:
     def __init__(self):
