@@ -9,17 +9,20 @@ import mysql.connector as mysql
 from dotenv import load_dotenv
 
 
-load_dotenv()
+load_dotenv() # lecture du fichier .env
 
 
 class Main:
     def __init__(self):
         self._hub_connection = None
+        # on importe les variables d'environnement :
         self.HOST = os.getenv("HVAC_HOST",'no_host')
         self.TOKEN = os.getenv("HVAC_TOKEN",'no_token')
         self.NB_TICK = int(os.getenv("HVAC_NB_TICK",'4'))
         self.TEMP_MAX = int(os.getenv("TEMP_MAX",'18'))
         self.TEMP_MIN = int(os.getenv("TEMP_MIN",'30'))
+
+        #on stoppe le programme si on ne trouve pas les variables :
         if self.TOKEN == 'no_token' : raise ValueError('\x1b[31m Impossible de trouver le token ! Verifiez que la variable "HVAC_TOKEN" est bien inscrite dans votre fichier .env \x1b[0m')
         if self.HOST == 'no_host' : raise ValueError('\x1b[31m Impossible de trouver l\'adresse du serveur ! Verifiez que la variable "HVAC_HOST" est bien inscrite dans votre fichier .env \x1b[0m')
     
