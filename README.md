@@ -10,7 +10,7 @@ Select the python interpreter of this virtual environment
 ```pipenv install <package>```
 
 ### To generate requirements.txt
-```pipenv lock -r > requirements.txt```
+```pipenv requirements > requirements.txt```
 
 
 ## To run project
