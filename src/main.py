@@ -18,7 +18,7 @@ class Main:
         # on importe les variables d'environnement :
         self.HOST = os.getenv("HVAC_HOST",'no_host')
         self.TOKEN = os.getenv("HVAC_TOKEN",'no_token')
-        self.NB_TICK = int(os.getenv("HVAC_NB_TICK",'4'))
+        self.NB_TICKS = int(os.getenv("HVAC_NB_TICK",'4'))
         self.TEMP_MAX = int(os.getenv("TEMP_MAX",'18'))
         self.TEMP_MIN = int(os.getenv("TEMP_MIN",'30'))
 
