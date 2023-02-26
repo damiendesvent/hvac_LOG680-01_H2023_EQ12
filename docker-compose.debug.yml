@@ -9,3 +9,5 @@ services:
     command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --wait-for-client --listen 0.0.0.0:5678 src/main.py "]
     ports:
       - 5678:5678
+    env_file:
+      - .env # this is the file with the environment variables
