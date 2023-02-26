@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   hvaclog68001h2023eq12:
-    image: hvaclog68001h2023eq12
+    image: elblogbruno/hvac-log680-eq12:latest
     build:
       context: .
       dockerfile: ./Dockerfile
