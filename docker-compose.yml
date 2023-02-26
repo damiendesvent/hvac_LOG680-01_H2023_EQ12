@@ -1,0 +1,8 @@
+version: '3.4'
+
+services:
+  hvaclog68001h2023eq12:
+    image: hvaclog68001h2023eq12
+    build:
+      context: .
+      dockerfile: ./Dockerfile
