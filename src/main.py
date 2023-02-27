@@ -71,14 +71,15 @@ class Main:
             print(err)
     
     def analyze_datapoint(self, date, data):
-        if (data >= self.TEMP_MAX):                
+        
+        if (data >= self.TEMP_MAX):               
             self.send_action_to_hvac(date, "TurnOnAc", self.NB_TICKS)
         elif (data <= self.TEMP_MIN):                
             self.send_action_to_hvac(date, "TurnOnHeater", self.NB_TICKS)
 
     def send_action_to_hvac(self, date, action, nb_tick):
-        r = requests.get(f"{self.HOST}/api/hvac/{self.TOKEN}/{action}/{nb_tick}") 
-        details = json.loads(r.text)
+        r = requests.get(f"{self.HOST}/api/hvac/{self.TOKEN}/{action}/{nb_tick}")
+        details = r.json()
         print(details)
 
 
