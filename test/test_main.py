@@ -62,6 +62,9 @@ class TestMain(unittest.TestCase):
         #Check printed action
         self.assertEqual(printedLines[1], "{'Response': 'Activating AC for "+ str(NB_TICKS) +" ticks'}")
 
+        #Fails a test
+        self.assertFalse(True)
+
     @patch('requests.get')
     def test_TurnOnHeater(self, mock_get):
         #Variables
