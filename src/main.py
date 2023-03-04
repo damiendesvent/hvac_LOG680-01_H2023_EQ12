@@ -18,7 +18,7 @@ class Main:
         # on importe les variables d'environnement :
         self.HOST = os.getenv("HVAC_HOST",'no_host')
         self.TOKEN = os.getenv("HVAC_TOKEN",'no_token')
-        self.NB_TICK = int(os.getenv("HVAC_NB_TICK",'4'))
+        self.NB_TICKS = int(os.getenv("HVAC_NB_TICK",'4'))
         self.TEMP_MAX = int(os.getenv("TEMP_MAX",'18'))
         self.TEMP_MIN = int(os.getenv("TEMP_MIN",'30'))
 
@@ -71,14 +71,15 @@ class Main:
             print(err)
     
     def analyze_datapoint(self, date, data):
-        if (data >= self.TEMP_MAX):                
+        
+        if (data >= self.TEMP_MAX):               
             self.send_action_to_hvac(date, "TurnOnAc", self.NB_TICKS)
         elif (data <= self.TEMP_MIN):                
             self.send_action_to_hvac(date, "TurnOnHeater", self.NB_TICKS)
 
     def send_action_to_hvac(self, date, action, nb_tick):
-        r = requests.get(f"{self.HOST}/api/hvac/{self.TOKEN}/{action}/{nb_tick}") 
-        details = json.loads(r.text)
+        r = requests.get(f"{self.HOST}/api/hvac/{self.TOKEN}/{action}/{nb_tick}")
+        details = r.json()
         print(details)
 
 
