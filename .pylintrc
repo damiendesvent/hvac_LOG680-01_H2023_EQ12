@@ -1,0 +1,8 @@
+[MASTER]
+jobs=4 #number of processes to use
+
+[BASIC]
+good-names=HVAC_LOG680-01_H2023_EQ12
+
+[pre-commit-hook]
+disable=E0401, C0301
