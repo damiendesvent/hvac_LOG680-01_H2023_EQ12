@@ -1,0 +1,13 @@
+version: '3.4'
+
+services:
+  hvaclog68001h2023eq12:
+    image: elblogbruno/hvac-log680-eq12:latest
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    command: ["sh", "-c", "pip install debugpy -t /tmp && python /tmp/debugpy --wait-for-client --listen 0.0.0.0:5678 src/main.py "]
+    ports:
+      - 5678:5678
+    env_file:
+      - .env # this is the file with the environment variables

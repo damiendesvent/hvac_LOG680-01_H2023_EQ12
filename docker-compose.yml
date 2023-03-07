@@ -1,0 +1,10 @@
+version: '3.4'
+
+services:
+  hvaclog68001h2023eq12:
+    image: elblogbruno/hvac-log680-eq12:latest
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file:
+      - .env # this is the file that contains the environment variables
