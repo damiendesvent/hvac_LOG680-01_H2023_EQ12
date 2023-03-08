@@ -14,9 +14,9 @@ load_dotenv()
 
 HOST = os.getenv("HVAC_HOST", 'no_host')
 TOKEN = os.getenv("HVAC_TOKEN",'no_token')
-NB_TICKS = int(os.getenv("HVAC_NB_TICK",'4'))
-TEMP_MAX = int(os.getenv("TEMP_MAX",'18'))
-TEMP_MIN = int(os.getenv("TEMP_MIN",'30'))
+NB_TICKS = int(os.getenv("HVAC_NB_TICK",'2'))
+TEMP_MAX = int(os.getenv("TEMP_MAX",'24'))
+TEMP_MIN = int(os.getenv("TEMP_MIN",'18'))
 
 
 
@@ -61,9 +61,6 @@ class TestMain(unittest.TestCase):
 
         #Check printed action
         self.assertEqual(printedLines[1], "{'Response': 'Activating AC for "+ str(NB_TICKS) +" ticks'}")
-
-        #Fail a test
-        #self.assertFalse(True)
 
     @patch('requests.get')
     def test_TurnOnHeater(self, mock_get):
