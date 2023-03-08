@@ -3,6 +3,13 @@ import sys
 import json
 import time
 import os
+import os
+import os
+import os
+import os
+import os
+import os
+import os
 import requests
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 
@@ -57,6 +64,13 @@ class Main:
                 f"||| An exception was thrown closed: {data.error}"
             )
         )
+
+
+
+
+
+
+
 
     def on_sensor_data_received(self, data):
         try:
