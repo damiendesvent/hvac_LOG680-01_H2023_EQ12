@@ -7,10 +7,6 @@ import requests
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 
 
-
-
-
-
 class Main:
     def __init__(self):
         self._hub_connection = None
