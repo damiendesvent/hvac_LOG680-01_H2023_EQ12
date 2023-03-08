@@ -17,8 +17,8 @@ jobs:
           pip install -r requirements.txt
       - name : Create env file
         env:
-          HVAC_HOST = ${{secrets.HVAC_HOST}}
-          HVAC_TOKEN = ${{secrets.HVAC_TOKEN}}
+          HVAC_HOST = ${{ secrets.HVAC_HOST }}
+          HVAC_TOKEN = ${{ secrets.HVAC_TOKEN }}
 
         run : |
           touch .env
