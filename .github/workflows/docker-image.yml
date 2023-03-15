@@ -3,8 +3,6 @@ name: Docker Image CI
 on:
   push:
     branches: [ "main" ]
-#  pull_request:
-#    branches: [ "main" ]
 
 jobs:
   build-and-publish:
@@ -20,10 +18,18 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           
-      - name: Build Docker image
+      - name: Build Docker image with specific tag
         run: |
-          docker build -t elblogbruno/hvac-log680-eq12:latest .
+          docker build -t elblogbruno/hvac-log680-eq12:${{ github.sha }} .
           
-      - name: Publish Docker image to Docker Hub
+      - name: Publish Docker image with specific tag to Docker Hub
+        run: |
+          docker push elblogbruno/hvac-log680-eq12:${{ github.sha }}
+          
+      - name: Tag Docker image as latest
+        run: |
+          docker tag elblogbruno/hvac-log680-eq12:${{ github.sha }} elblogbruno/hvac-log680-eq12:latest
+          
+      - name: Publish Docker image with latest tag to Docker Hub
         run: |
           docker push elblogbruno/hvac-log680-eq12:latest
