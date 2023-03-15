@@ -1,17 +1,34 @@
 import logging
 import sys
-import json
 import time
 import os
 import requests
 from signalrcore.hub_connection_builder import HubConnectionBuilder
+from dotenv import load_dotenv
+
+
+load_dotenv()  # lecture du fichier .env
 
 
 class Main:
     def __init__(self):
         self._hub_connection = None
-        self.host = os.environ["HVAC_HOST"]
-        self.token = os.environ["HVAC_TOKEN"]
+        # on importe les variables d'environnement :
+        self.host = os.getenv("HVAC_HOST", "no_host")
+        self.token = os.getenv("HVAC_TOKEN", "no_token")
+        self.nb_ticks = int(os.getenv("HVAC_NB_TICK", "4"))
+        self.temps_max = int(os.getenv("TEMP_MAX", "24"))
+        self.temps_min = int(os.getenv("TEMP_MIN", "18"))
+
+        # on stoppe le programme si on ne trouve pas les variables :
+        if self.token == "no_token":
+            raise ValueError(
+                '\x1b[31m Impossible de trouver le token ! Verifiez que la variable "HVAC_TOKEN" est bien inscrite dans votre fichier .env \x1b[0m'
+            )
+        if self.host == "no_host":
+            raise ValueError(
+                '\x1b[31m Impossible de trouver l\'adresse du serveur ! Verifiez que la variable "HVAC_HOST" est bien inscrite dans votre fichier .env \x1b[0m'
+            )
 
     def __del__(self):
         if self._hub_connection is not None:
@@ -62,24 +79,24 @@ class Main:
         try:
             print(data[0]["date"] + " --> " + data[0]["data"])
             date = data[0]["date"]
-            date_float = float(data[0]["data"])
+            data = float(data[0]["data"])
 
-            self.analyze_datapoint(date, date_float)
+            self.analyze_datapoint(date, data)
         except ConnectionError as err:
             print(err)
 
     def analyze_datapoint(self, date, data):
-        if data >= 80.0:
-            self.send_action_to_hvac(date, "TurnOnAc", 6)
-        elif data <= 20.0:
-            self.send_action_to_hvac(date, "TurnOnHeater", 6)
+        if data >= self.temps_max:
+            self.send_action_to_hvac("TurnOnAc", self.nb_ticks)
+        elif data <= self.temps_min:
+            self.send_action_to_hvac("TurnOnHeater", self.nb_ticks)
 
-    def send_action_to_hvac(self, date, action, nb_tick):
-        request = requests.get(
-            f"{self.host}/api/hvac/{self.token}/{action}/{nb_tick}", timeout=10
+    def send_action_to_hvac(self, action, nb_tick):
+        response = requests.get(
+            f"{self.host}/api/hvac/{self.token}/{action}/{nb_tick}"
         )
-        details = json.loads(request.text)
-        print(details + "\ndate : " + date)
+        details = response.json()
+        print(details)
 
 
 if __name__ == "__main__":
