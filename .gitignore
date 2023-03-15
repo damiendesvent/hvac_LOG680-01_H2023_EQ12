@@ -136,5 +136,4 @@ deploy_rsa
 deploy_rsa.pub
 
 # PipEnv
-Pipfile
 Pipfile.lock

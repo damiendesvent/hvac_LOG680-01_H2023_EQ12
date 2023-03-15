@@ -1,6 +1,6 @@
 [MASTER]
 jobs=0 #number of processes to use, 0 let the programm choose the best number
-disable=C0114, C0115, C0116
+disable=C0114, C0115, C0116, W3101
 
 [BASIC]
 good-names=HVAC_LOG680-01_H2023_EQ12
