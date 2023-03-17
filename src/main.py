@@ -9,7 +9,9 @@ from dotenv import load_dotenv
 
 load_dotenv()  # lecture du fichier .env
 
+
 # ceci est un commentaire test
+# ceci est un nouveau commentaire
 class Main:
     def __init__(self):
         self._hub_connection = None
@@ -17,6 +19,7 @@ class Main:
         self.host = os.getenv("HVAC_HOST", "no_host")
         self.token = os.getenv("HVAC_TOKEN", "no_token")
         self.nb_ticks = int(os.getenv("HVAC_NB_TICK", "4"))
+
         self.temps_max = int(os.getenv("TEMP_MAX", "24"))
         self.temps_min = int(os.getenv("TEMP_MIN", "18"))
 
