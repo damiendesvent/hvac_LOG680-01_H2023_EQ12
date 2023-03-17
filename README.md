@@ -1,42 +1,35 @@
+![image](https://user-images.githubusercontent.com/107462586/218005836-a271fd28-7d87-426d-b00e-f46dc0572aec.png)
 
-# HvacController-Python
+# Bienvenue
 
-## How to use PipEnv to create a virtual environment
-### Install required packages from requirements.txt
-At root level in terminal, enter command : ```pipenv install```
+Bienvue sur le projet du cours LOG680 (Introduction à l'approche DevOps).
 
-Select the python interpreter of this virtual environment
-### To install new package
-```pipenv install <package>```
+Ce repository contient un serveur permettant la gestion d'un système HVAC.  
+  
+L'intéret n'est pas ici le serveur en lui-même mais l'environnement autour avec pour but l'appréhension des outils d'intégration continues tels que le fichier de configuration `.env` les workflows avec GitHub Action, les tests automatiques, l'utilisation d'un pre-commit et enfin le build automatique d'une image Docker et son dépôt sur DockerHub.
 
-### To generate requirements.txt
-```pipenv requirements > requirements.txt```
+Ce projet est réalisé dans un contexte scolaire et n'est pas à vocation commerciale.
 
+***
 
-## To run project
-In terminal: ```python3 main.py```
+# Informations générales
 
-## Unit Test
+## Crédits
 
-### To run unit test
-At the root folder: run ```python -m unittest discover -v```
+Ecole de Technologie Supérieure de Montréal, Canada  
+Cours LOG680 - Introduction à l'approche DevOps  
+Session Hiver 2023  
+Groupe 01  
+Equipe 12  
 
-## SignalR & API
-The client use SignalR to receive data and get request to activate the hvac unit
-Server: http://178.128.234.252:32775/
+## Contributeurs
 
-### SignalR
-To receive continuous data from the server, we use SignalR. SignalR allow us to mimic real-time data sent to the client. https://github.com/mandrewcito/signalrcore
+Damien Desvent  
+Bruno Moya Ruiz  
+Dorian Perthuis  
 
-To receive data from the server, start a connection with SignalR and connect to this hub: *{serverurl}/SensorHub?token={token}*.
+***
 
-### Endpoints
-To control the Hvac, we use GET HTTP requests. The nbTicks represent for how long the AC or Heater will be activated.
+# Wiki
 
-- To turn off the unit : *GET {serverUrl}/api/Hvac/{token}/TurnOffHvac*
-- To start the AC of the unit : *GET {serverUrl}/api/Hvac/{token}/TurnOnAc/{nbTicks}*
-- To start the Heater of the unit : *GET {serverUrl}/api/Hvac/{token}/TurnOnHeater/{nbTicks}*
-
-The server also has a Healthcheck endpoint to test if the server is running properly:
-- Healtcheck : *GET {serverUrl}/api/health*
-
+Pour plus d'informations sur le projet, consultez le Wiki.
