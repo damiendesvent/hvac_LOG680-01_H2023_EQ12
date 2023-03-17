@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 load_dotenv()  # lecture du fichier .env
 
-
+# ceci est un commentaire test
 class Main:
     def __init__(self):
         self._hub_connection = None
