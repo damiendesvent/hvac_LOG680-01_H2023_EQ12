@@ -10,13 +10,13 @@ from dotenv import load_dotenv
 load_dotenv()  # lecture du fichier .env
 
 
-# ceci est un commentaire test
-# ceci est un nouveau commentaire
+
 class Main:
     def __init__(self):
         self._hub_connection = None
         # on importe les variables d'environnement :
         self.host = os.getenv("HVAC_HOST", "no_host")
+
         self.token = os.getenv("HVAC_TOKEN", "no_token")
         self.nb_ticks = int(os.getenv("HVAC_NB_TICK", "4"))
 
