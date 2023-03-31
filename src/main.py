@@ -10,7 +10,6 @@ from dotenv import load_dotenv
 load_dotenv()  # lecture du fichier .env
 
 
-
 class Main:
     def __init__(self):
         self._hub_connection = None
