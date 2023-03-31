@@ -38,6 +38,9 @@ jobs:
     needs: [build-and-publish]
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
       - name : set context
         uses : Azure/k8s-set-context@v2
         with:
