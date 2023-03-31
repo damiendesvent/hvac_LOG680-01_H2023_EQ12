@@ -61,4 +61,4 @@ jobs:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: 'Image {{ github.sha }} déployée sur le cluster Kubernetes sous le nom : hvac-server.'
+          args: 'Image ${{ github.sha }} déployée sur le cluster Kubernetes sous le nom : hvac-server.'
