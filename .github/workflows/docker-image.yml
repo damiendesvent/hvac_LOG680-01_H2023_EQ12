@@ -48,4 +48,4 @@ jobs:
         with:
           action: deploy
           manifests: |
-            manifests/deployment.yaml
+            damiendesvent/hvac_LOG680-01_H2023_EQ12/manifests/deployment.yaml
