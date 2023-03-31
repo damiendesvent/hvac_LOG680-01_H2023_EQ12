@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hvac-server
+  labels:
+    app: hvac-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hvac-server
+  template:
+    metadata:
+      labels:
+        app: hvac-server
+    spec:
+      containers:
+        - name: hvac-log680-eq12-container
+          image: elblogbruno/hvac-log680-eq12:latest
+          resources:
+            limits:
+              cpu: 150m
+              memory: 128Mi
+            requests:
+              cpu: 75m
+              memory: 64Mi
+          envFrom:
+            - configMapRef:
+                name: configlog680lab3e12
+            - secretRef:
+                name: sensor-token
+          ports:
+          - containerPort: 80
