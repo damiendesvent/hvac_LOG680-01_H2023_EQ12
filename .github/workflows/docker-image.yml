@@ -33,3 +33,19 @@ jobs:
       - name: Publish Docker image with latest tag to Docker Hub
         run: |
           docker push elblogbruno/hvac-log680-eq12:latest
+  deploy:
+    name: Deploy
+    needs: [build-and-publish]
+    runs-on: ubuntu-latest
+    steps:
+      - name : set context
+        uses : Azure/k8s-set-context@v2
+        with:
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+          
+      - name: deploy image to Kubernetes cluster
+        uses: Azure/k8s-deploy@v4
+        with:
+          action: deploy
+          manifests: |
+             ../manifests/deployment.yaml
