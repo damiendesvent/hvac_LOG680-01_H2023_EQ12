@@ -48,4 +48,4 @@ jobs:
           
       - name: deploy image to Kubernetes cluster
         run: |
-            kubectl create -f ./manifests/deployment.yaml
+            kubectl create -f ./kubernetes/deployment.yaml
