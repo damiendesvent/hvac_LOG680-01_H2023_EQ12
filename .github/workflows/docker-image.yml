@@ -44,8 +44,5 @@ jobs:
           kubeconfig: ${{ secrets.KUBECONFIG }}
           
       - name: deploy image to Kubernetes cluster
-        uses: Azure/k8s-deploy@v4
-        with:
-          action: deploy
-          manifests: |
-            damiendesvent/hvac_LOG680-01_H2023_EQ12/manifests/deployment.yaml
+        run: |
+            kubectl create -f manifests/deployment.yaml
