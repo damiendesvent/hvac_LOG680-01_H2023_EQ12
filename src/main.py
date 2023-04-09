@@ -6,6 +6,9 @@ import requests
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 from dotenv import load_dotenv
 
+from src.models.models import *
+from src.models.schemas import *
+from src.db import SessionLocal, engine, Base
 
 load_dotenv()  # lecture du fichier .env
 
@@ -29,6 +32,9 @@ class Main:
             raise ValueError(
                 '\x1b[31m Impossible de trouver l\'adresse du serveur ! Verifiez que la variable "HVAC_HOST" est bien inscrite dans votre fichier .env \x1b[0m'
             )
+
+        # on se connecte à la base de données :
+        Base.metadata.create_all(bind=engine)
 
     def __del__(self):
         if self._hub_connection is not None:
@@ -82,8 +88,21 @@ class Main:
             data = float(data[0]["data"])
 
             self.analyze_datapoint(date, data)
+            self.push_to_db(date, data)
+
         except ConnectionError as err:
             print(err)
+
+    def push_to_db(self, date, data):
+        db = SessionLocal()
+        db.add(
+            Temperature(
+                date=date,
+                data=data,
+            )
+        )
+        db.commit()
+        db.close()
 
     def analyze_datapoint(self, date, data):
         if data >= self.temps_max:

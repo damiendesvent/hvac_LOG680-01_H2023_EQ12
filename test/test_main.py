@@ -7,6 +7,9 @@ import datetime
 from dotenv import load_dotenv
 import requests
 from src.main import Main
+from src.models.schemas import Temperature
+
+from src.utils import get_temperature_by_date
 
 load_dotenv()
 
@@ -157,6 +160,38 @@ class TestMain(unittest.TestCase):
         self.assertEqual(
             printed_lines[0], data[0]["date"] + " --> " + data[0]["data"]
         )
+
+    # add a function to test the writing to the database here
+    @patch("requests.get")
+    def test_write_to_database(self, mock_get):
+
+        # Variables
+        data = [
+            {
+                "date": str(datetime.datetime.now()),
+                "data": str((TEMP_MIN + TEMP_MAX) / 2),
+            }
+        ]
+
+        # Run the code we want to test
+        main = Main()
+        main.push_to_db(date = data[0]["date"], data = data[0]["data"])
+
+        temp_from_bd = get_temperature_by_date(data[0]["date"])
+
+        # Check that the temperature is not None
+        self.assertIsNotNone(temp_from_bd)
+
+        # Check that the temperature is the same as the one we pushed
+        self.assertEqual(temp_from_bd.data, data[0]["data"])
+
+        # Check that the date is the same as the one we pushed
+        self.assertEqual(temp_from_bd.date, data[0]["date"])
+
+        # Check that the id is not None
+        self.assertIsNotNone(temp_from_bd.id)
+
+
 
 
 if __name__ == "__main__":
