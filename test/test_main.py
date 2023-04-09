@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 import requests
 from src.main import Main
 from src.db import SessionLocal
-from src.utils import get_temperature_by_date
+from src.utils import get_temperature_by_date, get_all_temperatures
 
 load_dotenv()
 
@@ -23,8 +23,8 @@ class TestMain(unittest.TestCase):
     def setUp(self):
         self.main = Main()
 
-    def tearDown(self):
-        self.main.Base.metadata.drop_all(self.main.engine)
+    # def tearDown(self):
+    #     self.main.Base.metadata.drop_all(self.main.engine)
 
     def test_simulator_up(self):
         response = requests.get(f"{HOST}/api/health")
@@ -168,40 +168,47 @@ class TestMain(unittest.TestCase):
 
     # add a function to test the writing to the database here
     def test_write_to_database(self):
+        # self.main.Base.metadata.create_all(self.main.engine)
+        date = datetime.datetime.now() # 2021-04-09 12:28:46.119241
+        date = date.strftime("%Y-%m-%d %H:%M:%S") # 2021-04-09 12:28:46
 
         # Variables
         data = [
             {
-                "date": str(datetime.datetime.now()),
-                "data": str((TEMP_MIN + TEMP_MAX) / 2),
+                "date": str(date), 
+                "data": (TEMP_MIN + TEMP_MAX) / 2,
             }
         ]
 
-        print(data[0]["date"])
-        print(data[0]["data"])
+        # print(data[0]["date"])
+        # print(data[0]["data"])
 
         # Run the code we want to test
         #main = Main()
         self.main.push_to_db(date = data[0]["date"], data = data[0]["data"])
 
+        temp_from_bd = get_temperature_by_date(data[0]["date"], self.main.db)
 
-        temp_from_bd = get_temperature_by_date(data[0]["date"], SessionLocal())
-
-        print(temp_from_bd)
+        # print(temp_from_bd)
 
         # Check that the temperature is not None
         self.assertIsNotNone(temp_from_bd)
 
+        # print(temp_from_bd.data)
+
         # Check that the temperature is the same as the one we pushed
         self.assertEqual(temp_from_bd.data, data[0]["data"])
 
-        # Check that the date is the same as the one we pushed
-        self.assertEqual(temp_from_bd.date, data[0]["date"])
+        # print(temp_from_bd.date)
+        # print(str(temp_from_bd.date))
 
-        # Check that the id is not None
+        # Check that the date is the same as the one we pushed
+        self.assertEqual(str(temp_from_bd.date), data[0]["date"])
+
+        # Check that the id  is not None
         self.assertIsNotNone(temp_from_bd.id)
 
-
+        # self.main.Base.metadata.drop_all(self.main.engine)
 
 
 if __name__ == "__main__":

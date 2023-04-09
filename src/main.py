@@ -39,6 +39,8 @@ class Main:
 
         self.Base = Base
         self.engine = engine
+        self.db = SessionLocal() # on se connecte à la base de données
+
 
     def __del__(self):
         if self._hub_connection is not None:
@@ -98,15 +100,12 @@ class Main:
             print(err)
 
     def push_to_db(self, date, data):
-        db = SessionLocal()
-        db.add(
-            Temperature(
+        temp = Temperature(
                 date=date,
                 data=data,
             )
-        )
-        db.commit()
-        db.close()
+                
+        temp.save(self.db)
 
     def analyze_datapoint(self, date, data):
         if data >= self.temps_max:

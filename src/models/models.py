@@ -38,7 +38,10 @@ class BaseModel(Base):
 
 class Temperature(BaseModel):
     __tablename__ = "temperatures"
-    date = Column(DateTime, default=datetime.utcnow)
+    # date = Column(DateTime, nullable=False)
+    # add DateTime column with miliseconds
+    date = Column(DateTime(), nullable=False)
+
     data = Column(Float, nullable=False)
 
     def save(self, db):
@@ -52,11 +55,5 @@ class Temperature(BaseModel):
         db.commit()
         return self
 
-    def add_card(self, card, db):
-        self.cards.append(card)
-        db.commit()
-        db.refresh(self)
-        return self
-
     def __repr__(self):
-        return f"Column {self.name} ({self.id})"
+        return f"Temperature {self.date} {self.data}"
