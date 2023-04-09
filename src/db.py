@@ -1,15 +1,14 @@
 import databases
 import sqlalchemy
 
-from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-host = "95.111.245.169" #"labo3.brunomoya.com"
+host = "labo3.brunomoya.com"
 user = "root"
 password = "Xln3I0us64"
 db = "labo3"
-port = "80"
+port = "49164"
 
 DATABASE_URL = f"mysql://{user}:{password}@{host}:{port}/{db}"
 
@@ -27,4 +26,4 @@ engine = sqlalchemy.create_engine(
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-Base = declarative_base()
+# Base = declarative_base()

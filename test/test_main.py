@@ -7,8 +7,7 @@ import datetime
 from dotenv import load_dotenv
 import requests
 from src.main import Main
-from src.models.schemas import Temperature
-
+from src.db import SessionLocal
 from src.utils import get_temperature_by_date
 
 load_dotenv()
@@ -21,6 +20,12 @@ TEMP_MIN = int(os.getenv("TEMP_MIN", "18"))
 
 
 class TestMain(unittest.TestCase):
+    def setUp(self):
+        self.main = Main()
+
+    def tearDown(self):
+        self.main.Base.metadata.drop_all(self.main.engine)
+
     def test_simulator_up(self):
         response = requests.get(f"{HOST}/api/health")
         self.assertEqual("All system operational Commander !", response.text)
@@ -49,8 +54,8 @@ class TestMain(unittest.TestCase):
         sys.stdout = stdout_buffer
 
         # Run the code we want to test
-        main = Main()
-        main.on_sensor_data_received(data)
+        # main = Main()
+        self.main.on_sensor_data_received(data)
 
         # Check that the get request's methode use the correct http URL
         mock_get.assert_called_once_with(
@@ -96,8 +101,8 @@ class TestMain(unittest.TestCase):
         sys.stdout = stdout_buffer
 
         # Run the code we want to test
-        main = Main()
-        main.on_sensor_data_received(data)
+        # main = Main()
+        self.main.on_sensor_data_received(data)
 
         # Check that the get request's methode use the correct http URL
         mock_get.assert_called_once_with(
@@ -143,8 +148,8 @@ class TestMain(unittest.TestCase):
         sys.stdout = stdout_buffer
 
         # Run the code we want to test
-        main = Main()
-        main.on_sensor_data_received(data)
+        # main = Main()
+        self.main.on_sensor_data_received(data)
 
         # Check that no get requests is execute
         self.assertFalse(mock_get.called)
@@ -176,10 +181,13 @@ class TestMain(unittest.TestCase):
         print(data[0]["data"])
 
         # Run the code we want to test
-        main = Main()
-        main.push_to_db(date = data[0]["date"], data = data[0]["data"])
+        #main = Main()
+        self.main.push_to_db(date = data[0]["date"], data = data[0]["data"])
 
-        temp_from_bd = get_temperature_by_date(data[0]["date"])
+
+        temp_from_bd = get_temperature_by_date(data[0]["date"], SessionLocal())
+
+        print(temp_from_bd)
 
         # Check that the temperature is not None
         self.assertIsNotNone(temp_from_bd)

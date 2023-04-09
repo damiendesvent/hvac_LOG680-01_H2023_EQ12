@@ -1,6 +1,6 @@
 from sqlalchemy.sql.schema import ForeignKey
 
-from sqlalchemy import Column, Boolean, String, Float, DateTime, Text, Integer
+from sqlalchemy import Column, Boolean, String, Float, DateTime, VARCHAR
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -19,7 +19,7 @@ def datetime_parser(o):
 class BaseModel(Base):
     __abstract__ = True
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column('id', VARCHAR(length=36), default=lambda: str(uuid.uuid4()), primary_key=True)
     
     def save(self, db):
         db.add(self)

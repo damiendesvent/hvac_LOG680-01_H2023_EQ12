@@ -6,12 +6,13 @@ import requests
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 from dotenv import load_dotenv
 
-from src.models.models import *
-from src.models.schemas import *
-from src.db import SessionLocal, engine, Base
+from src.db import SessionLocal, engine
+from src.models.models import Temperature, Base
 
 load_dotenv()  # lecture du fichier .env
 
+# on se connecte à la base de données :
+# Base.metadata.create_all(bind=engine)
 
 class Main:
     def __init__(self):
@@ -35,6 +36,9 @@ class Main:
 
         # on se connecte à la base de données :
         Base.metadata.create_all(bind=engine)
+
+        self.Base = Base
+        self.engine = engine
 
     def __del__(self):
         if self._hub_connection is not None:
