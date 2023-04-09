@@ -7,7 +7,6 @@ import datetime
 from dotenv import load_dotenv
 import requests
 from src.main import Main
-from src.db import SessionLocal
 from src.utils import get_temperature_by_date, get_all_temperatures
 
 load_dotenv()
