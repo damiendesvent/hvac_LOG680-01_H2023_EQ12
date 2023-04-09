@@ -5,11 +5,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-host = "labo3.brunomoya.com"
+host = "95.111.245.169" #"labo3.brunomoya.com"
 user = "root"
 password = "Xln3I0us64"
 db = "labo3"
-port = "3306"
+port = "80"
 
 DATABASE_URL = f"mysql://{user}:{password}@{host}:{port}/{db}"
 

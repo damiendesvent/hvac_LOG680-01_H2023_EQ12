@@ -162,8 +162,7 @@ class TestMain(unittest.TestCase):
         )
 
     # add a function to test the writing to the database here
-    @patch("requests.get")
-    def test_write_to_database(self, mock_get):
+    def test_write_to_database(self):
 
         # Variables
         data = [
@@ -172,6 +171,9 @@ class TestMain(unittest.TestCase):
                 "data": str((TEMP_MIN + TEMP_MAX) / 2),
             }
         ]
+
+        print(data[0]["date"])
+        print(data[0]["data"])
 
         # Run the code we want to test
         main = Main()
