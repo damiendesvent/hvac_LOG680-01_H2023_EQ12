@@ -7,7 +7,7 @@ import datetime
 from dotenv import load_dotenv
 import requests
 from src.main import Main
-from src.utils import get_temperature_by_date, get_all_temperatures
+from src.utils import get_event_by_date, get_all_events
 
 load_dotenv()
 
@@ -166,7 +166,7 @@ class TestMain(unittest.TestCase):
         )
 
     # add a function to test the writing to the database here
-    def test_write_to_database(self):
+    def test_write_read_to_database(self):
         # self.main.Base.metadata.create_all(self.main.engine)
         date = datetime.datetime.now() # 2021-04-09 12:28:46.119241
         date = date.strftime("%Y-%m-%d %H:%M:%S") # 2021-04-09 12:28:46
@@ -175,7 +175,7 @@ class TestMain(unittest.TestCase):
         data = [
             {
                 "date": str(date), 
-                "data": (TEMP_MIN + TEMP_MAX) / 2,
+                "data": str((TEMP_MIN + TEMP_MAX) / 2),
             }
         ]
 
@@ -184,9 +184,9 @@ class TestMain(unittest.TestCase):
 
         # Run the code we want to test
         #main = Main()
-        self.main.push_to_db(date = data[0]["date"], data = data[0]["data"])
+        self.main.on_sensor_data_received(data)
 
-        temp_from_bd = get_temperature_by_date(data[0]["date"], self.main.db)
+        temp_from_bd = get_event_by_date(data[0]["date"], self.main.db)
 
         # print(temp_from_bd)
 
@@ -196,18 +196,20 @@ class TestMain(unittest.TestCase):
         # print(temp_from_bd.data)
 
         # Check that the temperature is the same as the one we pushed
-        self.assertEqual(temp_from_bd.data, data[0]["data"])
+        self.assertEqual(temp_from_bd.data, float(data[0]["data"]))
 
-        # print(temp_from_bd.date)
-        # print(str(temp_from_bd.date))
+        # Check that nb_ticks is between 0 and 4
+        self.assertGreaterEqual(temp_from_bd.nb_ticks, 0)
+        self.assertLessEqual(temp_from_bd.nb_ticks, 4)
+
+        # Check that event is "No-Action" or "TurnOnHeater" or "TurnOnAC"
+        self.assertIn(temp_from_bd.event, ["No-Action", "TurnOnHeater", "TurnOnAC"])
 
         # Check that the date is the same as the one we pushed
         self.assertEqual(str(temp_from_bd.date), data[0]["date"])
 
         # Check that the id  is not None
         self.assertIsNotNone(temp_from_bd.id)
-
-        # self.main.Base.metadata.drop_all(self.main.engine)
 
 
 if __name__ == "__main__":

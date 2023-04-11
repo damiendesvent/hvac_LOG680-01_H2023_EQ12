@@ -7,7 +7,7 @@ from signalrcore.hub_connection_builder import HubConnectionBuilder
 from dotenv import load_dotenv
 
 from src.db import SessionLocal, engine
-from src.models.models import Temperature, Base
+from src.models.models import Event, Base
 
 load_dotenv()  # lecture du fichier .env
 
@@ -93,25 +93,37 @@ class Main:
             date = data[0]["date"]
             data = float(data[0]["data"])
 
-            self.analyze_datapoint(date, data)
-            self.push_to_db(date, data)
+            (event, nb_ticks) = self.analyze_datapoint(date, data)
+            self.push_to_db(date, data, event, nb_ticks)
 
         except ConnectionError as err:
             print(err)
 
-    def push_to_db(self, date, data):
-        temp = Temperature(
+    def push_to_db(self, date, data, event, nb_ticks):
+        temp = Event(
                 date=date,
                 data=data,
+                event=event,
+                nb_ticks=nb_ticks
             )
                 
         temp.save(self.db)
 
+    # TODO: publie les evenements dans le bd
     def analyze_datapoint(self, date, data):
+        event = "No-Action" # par défaut, on ne fait rien
+        nb_ticks = 0
+
         if data >= self.temps_max:
             self.send_action_to_hvac("TurnOnAc", self.nb_ticks)
+            event = "TurnOnAc"
+            nb_ticks = self.nb_ticks
         elif data <= self.temps_min:
             self.send_action_to_hvac("TurnOnHeater", self.nb_ticks)
+            event = "TurnOnHeater"
+            nb_ticks = self.nb_ticks
+
+        return (event, nb_ticks)
 
     def send_action_to_hvac(self, action, nb_tick):
         response = requests.get(

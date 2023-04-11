@@ -1,10 +1,6 @@
-from sqlalchemy.sql.schema import ForeignKey
 
-from sqlalchemy import Column, Boolean, String, Float, DateTime, VARCHAR
-from sqlalchemy.ext.declarative import declared_attr
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Float, DateTime, VARCHAR
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.dialects.postgresql import UUID
 import uuid
 
 Base = declarative_base()
@@ -36,12 +32,13 @@ class BaseModel(Base):
         return f"{self.__class__.__name__}({self.id})"
 
 
-class Temperature(BaseModel):
-    __tablename__ = "temperatures"
+class Event(BaseModel):
+    __tablename__ = "events"
     # date = Column(DateTime, nullable=False)
     # add DateTime column with miliseconds
     date = Column(DateTime(), nullable=False)
-
+    nb_ticks = Column(Integer, nullable=False)
+    event = Column(VARCHAR(length=15), nullable=False)
     data = Column(Float, nullable=False)
 
     def save(self, db):
@@ -56,4 +53,4 @@ class Temperature(BaseModel):
         return self
 
     def __repr__(self):
-        return f"Temperature {self.date} {self.data}"
+        return f"Event  {self.id} {self.date} {self.data} {self.event} {self.nb_ticks}"
