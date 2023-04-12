@@ -8,6 +8,10 @@ ENV PYTHONDONTWRITEBYTECODE=1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
 
+# install libmysqlclient-dev
+
+RUN apk add gcc musl-dev mariadb-connector-c-dev
+
 # Install pip requirements
 COPY requirements.txt .
 RUN python -m pip install -r requirements.txt
