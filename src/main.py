@@ -6,7 +6,7 @@ import requests
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 from dotenv import load_dotenv
 
-from db import SessionLocal, engine
+from db.database import SessionLocal, engine
 from models.models import Event, Base
 
 load_dotenv()  # lecture du fichier .env
