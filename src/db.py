@@ -1,7 +1,7 @@
 import databases
 import sqlalchemy
 
-from sqlalchemy.ext.declarative import declarative_base
+# from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 host = "labo3.brunomoya.com"
@@ -19,5 +19,7 @@ metadata = sqlalchemy.MetaData()
 engine = sqlalchemy.create_engine(
     DATABASE_URL
 )
+
+print(DATABASE_URL)
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

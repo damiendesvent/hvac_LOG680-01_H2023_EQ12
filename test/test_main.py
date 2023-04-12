@@ -29,12 +29,21 @@ class TestMain(unittest.TestCase):
         response = requests.get(f"{HOST}/api/health")
         self.assertEqual("All system operational Commander !", response.text)
 
+    def get_current_date(self):
+        # convert current date to "%Y-%m-%dT%H:%M:%S.%f" format
+        date = datetime.datetime.now()
+        date = date.strftime("%Y-%m-%dT%H:%M:%S.%f")
+        return date
+
     @patch("requests.get")
     def test_turn_on_ac(self, mock_get):
+
+        date = self.get_current_date()
+
         # Variables
         action = "TurnOnAc"
         data = [
-            {"date": str(datetime.datetime.now()), "data": str(TEMP_MAX + 1.0)}
+            {"date": str(date), "data": str(TEMP_MAX + 1.0)}
         ]
 
         # Mocked responses
@@ -78,10 +87,13 @@ class TestMain(unittest.TestCase):
 
     @patch("requests.get")
     def test_turn_on_heater(self, mock_get):
+
+        date = self.get_current_date()
+
         # Variables
         action = "TurnOnHeater"
         data = [
-            {"date": str(datetime.datetime.now()), "data": str(TEMP_MIN - 1.0)}
+            {"date": str(date), "data": str(TEMP_MIN - 1.0)}
         ]
 
         # Mocked responses
@@ -127,10 +139,12 @@ class TestMain(unittest.TestCase):
 
     @patch("requests.get")
     def test_no_action(self, mock_get):
+        date = self.get_current_date()
+
         # Variables
         data = [
             {
-                "date": str(datetime.datetime.now()),
+                "date": str(date),
                 "data": str((TEMP_MIN + TEMP_MAX) / 2),
             }
         ]
@@ -168,8 +182,8 @@ class TestMain(unittest.TestCase):
     # add a function to test the writing to the database here
     def test_write_read_to_database(self):
         # self.main.Base.metadata.create_all(self.main.engine)
-        date = datetime.datetime.now() # 2021-04-09 12:28:46.119241
-        date = date.strftime("%Y-%m-%d %H:%M:%S") # 2021-04-09 12:28:46
+        date_now = datetime.datetime.now() # 2021-04-09 12:28:46.119241
+        date = date_now.strftime("%Y-%m-%dT%H:%M:%S.%f")
 
         # Variables
         data = [
@@ -183,14 +197,14 @@ class TestMain(unittest.TestCase):
         #main = Main()
         self.main.on_sensor_data_received(data)
 
-        temp_from_bd = get_event_by_date(data[0]["date"], self.main.db)
+        date = date_now.strftime("%Y-%m-%d %H:%M:%S") # 2021-04-09 12:28:46
+
+        temp_from_bd = get_event_by_date(date, self.main.db)
 
         # print(temp_from_bd)
 
         # Check that the temperature is not None
         self.assertIsNotNone(temp_from_bd)
-
-        # print(temp_from_bd.data)
 
         # Check that the temperature is the same as the one we pushed
         self.assertEqual(temp_from_bd.data, float(data[0]["data"]))
@@ -203,7 +217,7 @@ class TestMain(unittest.TestCase):
         self.assertIn(temp_from_bd.event, ["No-Action", "TurnOnHeater", "TurnOnAC"])
 
         # Check that the date is the same as the one we pushed
-        self.assertEqual(str(temp_from_bd.date), data[0]["date"])
+        self.assertEqual(str(temp_from_bd.date), str(date))
 
         # Check that the id  is not None
         self.assertIsNotNone(temp_from_bd.id)

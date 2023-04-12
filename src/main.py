@@ -1,3 +1,4 @@
+import datetime
 import logging
 import sys
 import time
@@ -6,15 +7,20 @@ import requests
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 from dotenv import load_dotenv
 
+
+
 # import using src. failes in the docker container because of the dockerfile WORKDIR
 # fix : https://stackoverflow.com/questions/6323860/sibling-package-imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-
-from src.db import SessionLocal, engine
 from src.models import Event, Base
 
+from src.db import SessionLocal, engine
+
 load_dotenv()  # lecture du fichier .env
+
+# on se connecte à la base de données :
+Base.metadata.create_all(bind=engine)
 
 
 class Main:
@@ -37,13 +43,12 @@ class Main:
                 '\x1b[31m Impossible de trouver l\'adresse du serveur ! Verifiez que la variable "HVAC_HOST" est bien inscrite dans votre fichier .env \x1b[0m'
             )
 
-        # on se connecte à la base de données :
-        Base.metadata.create_all(bind=engine)
 
-        self.Base = Base
-        self.engine = engine
+        print("||| Connection to the database...")
+        
         self.db = SessionLocal() # on se connecte à la base de données
-
+        
+        print("||| Connection to the database... OK")
 
     def __del__(self):
         if self._hub_connection is not None:
@@ -103,6 +108,19 @@ class Main:
             print(err)
 
     def push_to_db(self, date, data, event, nb_ticks):
+        try: 
+            date = datetime.datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f")
+            date = date.strftime("%Y-%m-%d %H:%M:%S")
+        except Exception as err:
+            # it's the timezone, but we don't need it, so we remove it
+            date = date[:-6] # 2021-04-09T12:28:46.0000000
+
+            # we remove the last digit
+            date = date[:-1] # 2021-04-09T12:28:46.000000
+
+            date = datetime.datetime.strptime(date, "%Y-%m-%dT%H:%M:%S.%f") # 2021-04-09 12:28:46.000000
+            date = date.strftime("%Y-%m-%d %H:%M:%S") # 2021-04-09 12:28:46
+
         temp = Event(
                 date=date,
                 data=data,
