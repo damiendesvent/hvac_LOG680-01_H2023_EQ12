@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
-from src.db.database import SessionLocal, engine
+from src.db import SessionLocal, engine
 from src.models import Event, Base
 
 load_dotenv()  # lecture du fichier .env
@@ -22,10 +22,8 @@ class Main:
         self._hub_connection = None
         # on importe les variables d'environnement :
         self.host = os.getenv("HVAC_HOST", "no_host")
-
         self.token = os.getenv("HVAC_TOKEN", "no_token")
         self.nb_ticks = int(os.getenv("HVAC_NB_TICK", "4"))
-
         self.temps_max = int(os.getenv("TEMP_MAX", "24"))
         self.temps_min = int(os.getenv("TEMP_MIN", "18"))
 
@@ -38,6 +36,14 @@ class Main:
             raise ValueError(
                 '\x1b[31m Impossible de trouver l\'adresse du serveur ! Verifiez que la variable "HVAC_HOST" est bien inscrite dans votre fichier .env \x1b[0m'
             )
+
+        # on se connecte à la base de données :
+        Base.metadata.create_all(bind=engine)
+
+        self.Base = Base
+        self.engine = engine
+        self.db = SessionLocal() # on se connecte à la base de données
+
 
     def __del__(self):
         if self._hub_connection is not None:
@@ -90,15 +96,34 @@ class Main:
             date = data[0]["date"]
             data = float(data[0]["data"])
 
-            self.analyze_datapoint(date, data)
+            (event, nb_ticks) = self.analyze_datapoint(date, data)
+            self.push_to_db(date, data, event, nb_ticks)
+
         except ConnectionError as err:
             print(err)
 
+    def push_to_db(self, date, data, event, nb_ticks):
+        temp = Event(
+                date=date,
+                data=data,
+                event=event,
+                nb_ticks=nb_ticks
+            )
+                
+        temp.save(self.db)
+
     def analyze_datapoint(self, date, data):
+        event = "No-Action" # par défaut, on ne fait rien
+        nb_ticks = self.nb_ticks
+
         if data >= self.temps_max:
             self.send_action_to_hvac("TurnOnAc", self.nb_ticks)
+            event = "TurnOnAc"
         elif data <= self.temps_min:
             self.send_action_to_hvac("TurnOnHeater", self.nb_ticks)
+            event = "TurnOnHeater"
+
+        return (event, nb_ticks)
 
     def send_action_to_hvac(self, action, nb_tick):
         response = requests.get(

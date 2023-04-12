@@ -7,6 +7,7 @@ import datetime
 from dotenv import load_dotenv
 import requests
 from src.main import Main
+from src.utils import get_event_by_date, get_all_events
 
 load_dotenv()
 
@@ -18,6 +19,12 @@ TEMP_MIN = int(os.getenv("TEMP_MIN", "18"))
 
 
 class TestMain(unittest.TestCase):
+    def setUp(self):
+        self.main = Main()
+
+    # def tearDown(self):
+    #     self.main.Base.metadata.drop_all(self.main.engine)
+
     def test_simulator_up(self):
         response = requests.get(f"{HOST}/api/health")
         self.assertEqual("All system operational Commander !", response.text)
@@ -46,8 +53,8 @@ class TestMain(unittest.TestCase):
         sys.stdout = stdout_buffer
 
         # Run the code we want to test
-        main = Main()
-        main.on_sensor_data_received(data)
+        # main = Main()
+        self.main.on_sensor_data_received(data)
 
         # Check that the get request's methode use the correct http URL
         mock_get.assert_called_once_with(
@@ -93,8 +100,8 @@ class TestMain(unittest.TestCase):
         sys.stdout = stdout_buffer
 
         # Run the code we want to test
-        main = Main()
-        main.on_sensor_data_received(data)
+        # main = Main()
+        self.main.on_sensor_data_received(data)
 
         # Check that the get request's methode use the correct http URL
         mock_get.assert_called_once_with(
@@ -140,8 +147,8 @@ class TestMain(unittest.TestCase):
         sys.stdout = stdout_buffer
 
         # Run the code we want to test
-        main = Main()
-        main.on_sensor_data_received(data)
+        # main = Main()
+        self.main.on_sensor_data_received(data)
 
         # Check that no get requests is execute
         self.assertFalse(mock_get.called)
@@ -157,6 +164,49 @@ class TestMain(unittest.TestCase):
         self.assertEqual(
             printed_lines[0], data[0]["date"] + " --> " + data[0]["data"]
         )
+
+    # add a function to test the writing to the database here
+    def test_write_read_to_database(self):
+        # self.main.Base.metadata.create_all(self.main.engine)
+        date = datetime.datetime.now() # 2021-04-09 12:28:46.119241
+        date = date.strftime("%Y-%m-%d %H:%M:%S") # 2021-04-09 12:28:46
+
+        # Variables
+        data = [
+            {
+                "date": str(date), 
+                "data": str((TEMP_MIN + TEMP_MAX) / 2),
+            }
+        ]
+
+        # Run the code we want to test
+        #main = Main()
+        self.main.on_sensor_data_received(data)
+
+        temp_from_bd = get_event_by_date(data[0]["date"], self.main.db)
+
+        # print(temp_from_bd)
+
+        # Check that the temperature is not None
+        self.assertIsNotNone(temp_from_bd)
+
+        # print(temp_from_bd.data)
+
+        # Check that the temperature is the same as the one we pushed
+        self.assertEqual(temp_from_bd.data, float(data[0]["data"]))
+
+        # Check that nb_ticks is between 0 and 4
+        self.assertGreaterEqual(temp_from_bd.nb_ticks, 0)
+        self.assertLessEqual(temp_from_bd.nb_ticks, 4)
+
+        # Check that event is "No-Action" or "TurnOnHeater" or "TurnOnAC"
+        self.assertIn(temp_from_bd.event, ["No-Action", "TurnOnHeater", "TurnOnAC"])
+
+        # Check that the date is the same as the one we pushed
+        self.assertEqual(str(temp_from_bd.date), data[0]["date"])
+
+        # Check that the id  is not None
+        self.assertIsNotNone(temp_from_bd.id)
 
 
 if __name__ == "__main__":
