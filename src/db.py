@@ -8,13 +8,9 @@ host = "labo3.brunomoya.com"
 user = "root"
 password = "Xln3I0us64"
 db = "labo3"
-port = "49164"
+port = "49165"
 
 DATABASE_URL = f"mysql://{user}:{password}@{host}:{port}/{db}"
-
-# DATABASE_URL = 'postgresql://postgres:glassfood@localhost:5432/wanderpi'
-# DATABASE_URL = "sqlite:///glassfood.sqlite"
-# DATABASE_URL = "postgresql://user:password@postgresserver/db"
 
 database = databases.Database(DATABASE_URL)
 
@@ -25,5 +21,3 @@ engine = sqlalchemy.create_engine(
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Base = declarative_base()

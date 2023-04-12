@@ -179,9 +179,6 @@ class TestMain(unittest.TestCase):
             }
         ]
 
-        # print(data[0]["date"])
-        # print(data[0]["data"])
-
         # Run the code we want to test
         #main = Main()
         self.main.on_sensor_data_received(data)

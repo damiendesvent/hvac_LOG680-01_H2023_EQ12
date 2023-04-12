@@ -11,31 +11,9 @@ def datetime_parser(o):
     if isinstance(o, datetime):
         return o.__str__()
 
-
-class BaseModel(Base):
-    __abstract__ = True
-
-    id = Column('id', VARCHAR(length=36), default=lambda: str(uuid.uuid4()), primary_key=True)
-    
-    def save(self, db):
-        db.add(self)
-        db.commit()
-        db.refresh(self)
-        return self
-
-    def delete(self, db):
-        db.delete(self)
-        db.commit()
-        return self
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}({self.id})"
-
-
-class Event(BaseModel):
+class Event(Base):
     __tablename__ = "events"
-    # date = Column(DateTime, nullable=False)
-    # add DateTime column with miliseconds
+    id = Column('id', VARCHAR(length=36), default=lambda: str(uuid.uuid4()), primary_key=True)
     date = Column(DateTime(), nullable=False)
     nb_ticks = Column(Integer, nullable=False)
     event = Column(VARCHAR(length=15), nullable=False)

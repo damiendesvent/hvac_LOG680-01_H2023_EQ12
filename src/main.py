@@ -109,19 +109,16 @@ class Main:
                 
         temp.save(self.db)
 
-    # TODO: publie les evenements dans le bd
     def analyze_datapoint(self, date, data):
         event = "No-Action" # par défaut, on ne fait rien
-        nb_ticks = 0
+        nb_ticks = self.nb_ticks
 
         if data >= self.temps_max:
             self.send_action_to_hvac("TurnOnAc", self.nb_ticks)
             event = "TurnOnAc"
-            nb_ticks = self.nb_ticks
         elif data <= self.temps_min:
             self.send_action_to_hvac("TurnOnHeater", self.nb_ticks)
             event = "TurnOnHeater"
-            nb_ticks = self.nb_ticks
 
         return (event, nb_ticks)
 
