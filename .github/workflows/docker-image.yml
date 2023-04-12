@@ -33,3 +33,32 @@ jobs:
       - name: Publish Docker image with latest tag to Docker Hub
         run: |
           docker push elblogbruno/hvac-log680-eq12:latest
+  deploy:
+    name: Deploy
+    needs: [build-and-publish]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        
+      - name : set context
+        uses : Azure/k8s-set-context@v2
+        with:
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+          
+      - name: delete previous deployment if exists
+        run: |
+          kubectl delete deployment hvac-server
+        continue-on-error: true
+        
+      - name: deploy image to Kubernetes cluster
+        id: createDeployment
+        run: |
+            kubectl create -f ./kubernetes/deployment.yaml
+        
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@0.3.2
+        with:
+          args: 'Image ${{ github.sha }} déployée sur le cluster Kubernetes sous le nom : hvac-server.'
