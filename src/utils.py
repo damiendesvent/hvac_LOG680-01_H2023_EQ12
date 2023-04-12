@@ -1,4 +1,4 @@
-from models.models import Event
+from src.models import Event
 
 def get_event_by_date(date, db):
         return db.query(Event).filter(Event.date == date).first()

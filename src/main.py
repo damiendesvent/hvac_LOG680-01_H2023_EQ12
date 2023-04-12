@@ -6,8 +6,13 @@ import requests
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 from dotenv import load_dotenv
 
-from db.database import SessionLocal, engine
-from models.models import Event, Base
+# import using src. failes in the docker container because of the dockerfile WORKDIR
+# fix : https://stackoverflow.com/questions/6323860/sibling-package-imports
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+
+from src.db.database import SessionLocal, engine
+from src.models import Event, Base
 
 load_dotenv()  # lecture du fichier .env
 
