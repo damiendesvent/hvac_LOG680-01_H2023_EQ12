@@ -48,6 +48,7 @@ class Build(Base):
     version = Column(VARCHAR(length=50), nullable=False)
     size = Column(Integer, nullable=False)
     date = Column(DateTime(), nullable=False)
+    build_time = Column(Integer, nullable=False)
 
     def save(self, db):
         # if a record with the same name exists, update it
