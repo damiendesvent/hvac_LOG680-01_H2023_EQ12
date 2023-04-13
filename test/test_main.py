@@ -20,7 +20,7 @@ TEMP_MIN = int(os.getenv("TEMP_MIN", "18"))
 
 class TestMain(unittest.TestCase):
     def setUp(self):
-        self.main = Main()
+        self.main = Main(False)
 
     # def tearDown(self):
     #     self.main.Base.metadata.drop_all(self.main.engine)

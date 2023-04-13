@@ -7,13 +7,16 @@ import requests
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 from dotenv import load_dotenv
 
-
+# import logging
+# logging.basicConfig()
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 
 # import using src. failes in the docker container because of the dockerfile WORKDIR
 # fix : https://stackoverflow.com/questions/6323860/sibling-package-imports
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from src.models import Event, Base
+from src.ci_data import CiData
 
 from src.db import SessionLocal, engine
 
@@ -24,7 +27,7 @@ Base.metadata.create_all(bind=engine)
 
 
 class Main:
-    def __init__(self):
+    def __init__(self, update_ci=True):
         self._hub_connection = None
         # on importe les variables d'environnement :
         self.host = os.getenv("HVAC_HOST", "no_host")
@@ -32,6 +35,7 @@ class Main:
         self.nb_ticks = int(os.getenv("HVAC_NB_TICK", "4"))
         self.temps_max = int(os.getenv("TEMP_MAX", "24"))
         self.temps_min = int(os.getenv("TEMP_MIN", "18"))
+
 
         # on stoppe le programme si on ne trouve pas les variables :
         if self.token == "no_token":
@@ -47,7 +51,10 @@ class Main:
         print("||| Connection to the database...")
         
         self.db = SessionLocal() # on se connecte à la base de données
-        
+        if update_ci:
+            self.ci_data = CiData(os.getenv("GITHUB_TOKEN", "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"), self.db)
+            self.ci_data.start()
+
         print("||| Connection to the database... OK")
 
     def __del__(self):
@@ -103,7 +110,8 @@ class Main:
 
             (event, nb_ticks) = self.analyze_datapoint(date, data)
             self.push_to_db(date, data, event, nb_ticks)
-
+            # self.ci_data.update_ci_on_database()
+            
         except ConnectionError as err:
             print(err)
 
