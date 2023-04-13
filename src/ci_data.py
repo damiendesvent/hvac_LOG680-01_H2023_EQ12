@@ -1,7 +1,9 @@
 
 import datetime
+import threading
 import requests
 from src.models import Build, Workflow
+
 
 class CiData():
     def __init__(self, github_token, db):
@@ -11,6 +13,16 @@ class CiData():
         
         self.db = db 
         self.old_data = []
+
+    def start(self):
+        threading.Thread(target=self.update).start()
+        
+    def update(self):
+        self.update_ci_on_database()
+
+        # sleep for 1 minute before updating again
+        threading.Timer(60, self.update).start()
+
 
 
     def _get_docker_data(self):
@@ -25,6 +37,9 @@ class CiData():
 
         """
 
+        print("Getting docker data")
+        print(self.docker_api_url)
+
         response = requests.get(self.docker_api_url, headers={
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Methods": "GET,PUT,PATCH,POST,DELETE",
@@ -32,7 +47,7 @@ class CiData():
                 "Origin, X-Requested-With, Content-Type, Accept",
         })
         
-        return response.json()
+        return response
     
     def _get_github_data(self):
         response = requests.get(self.github, headers={
@@ -42,62 +57,68 @@ class CiData():
         return response.json()
     
     def update_ci_on_database(self):
-        data = self._get_docker_data()['results']
-        
-        github_data = self._get_github_data()['workflow_runs']
+        print("Updating ci data")
+        try:
+            data = self._get_docker_data()
 
-        print(len(data), len(self.old_data))
+            data = data.json()['results']
+            
+            github_data = self._get_github_data()['workflow_runs']
 
-        if len(data) != len(self.old_data) or data != self.old_data:
-            print("Update CI")
-            # get elements that are in data but not in self.old_data
-            for element in data:
-                if element not in self.old_data:
-                    date = datetime.datetime.strptime(element["last_updated"], "%Y-%m-%dT%H:%M:%S.%fZ")
-                    date = date.strftime("%Y-%m-%d %H:%M:%S")
+            print(len(data), len(self.old_data))
 
-                    build = Build(
-                        name = element["name"],
-                        version = element["name"],
-                        size = element["full_size"],
-                        date = str(date),
-                    )
+            if len(data) != len(self.old_data) or data != self.old_data:
+                print("Update CI")
+                # get elements that are in data but not in self.old_data
+                for element in data:
+                    if element not in self.old_data:
+                        date = datetime.datetime.strptime(element["last_updated"], "%Y-%m-%dT%H:%M:%S.%fZ")
+                        date = date.strftime("%Y-%m-%d %H:%M:%S")
 
-                    build.save(self.db)
+                        build = Build(
+                            name = element["name"],
+                            version = element["name"],
+                            size = element["full_size"],
+                            date = str(date),
+                        )
 
-        self.old_data = data
+                        build.save(self.db)
 
-        workflow_dict = {}
+            self.old_data = data
 
-        print(len(github_data))
+            workflow_dict = {}
 
-        for workflow in github_data:
-            if workflow['name'] not in workflow_dict:
-                workflow_dict[workflow['name']] = {
-                    'success': 0,
-                    'failure': 0,
-                }
+            print(len(github_data))
 
+            for workflow in github_data:
+                if workflow['name'] not in workflow_dict:
+                    workflow_dict[workflow['name']] = {
+                        'success': 0,
+                        'failure': 0,
+                    }
+
+                    if workflow['conclusion'] == 'failure':
+                        workflow_dict[workflow['name']]['failure'] += 1
+                    else:
+                        workflow_dict[workflow['name']]['success'] += 1
+                    
                 if workflow['conclusion'] == 'failure':
                     workflow_dict[workflow['name']]['failure'] += 1
                 else:
                     workflow_dict[workflow['name']]['success'] += 1
-                
-            if workflow['conclusion'] == 'failure':
-                workflow_dict[workflow['name']]['failure'] += 1
-            else:
-                workflow_dict[workflow['name']]['success'] += 1
 
-        print(workflow_dict)
+            print(workflow_dict)
 
-        for workflow in workflow_dict:
-            workflow = Workflow(
-                name = workflow,
-                number_of_runs = workflow_dict[workflow]['success'] + workflow_dict[workflow]['failure'],
-                number_of_success = workflow_dict[workflow]['success'],
-                number_of_failures = workflow_dict[workflow]['failure'],
-            )
+            for workflow in workflow_dict:
+                workflow = Workflow(
+                    name = workflow,
+                    number_of_runs = workflow_dict[workflow]['success'] + workflow_dict[workflow]['failure'],
+                    number_of_success = workflow_dict[workflow]['success'],
+                    number_of_failures = workflow_dict[workflow]['failure'],
+                )
 
-            workflow.save(self.db)
-
+                workflow.save(self.db)
+        except Exception as e:
+            print(e)
+            return
         

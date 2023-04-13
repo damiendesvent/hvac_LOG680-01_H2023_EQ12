@@ -27,7 +27,7 @@ Base.metadata.create_all(bind=engine)
 
 
 class Main:
-    def __init__(self):
+    def __init__(self, update_ci=True):
         self._hub_connection = None
         # on importe les variables d'environnement :
         self.host = os.getenv("HVAC_HOST", "no_host")
@@ -51,8 +51,10 @@ class Main:
         print("||| Connection to the database...")
         
         self.db = SessionLocal() # on se connecte à la base de données
-        self.ci_data = CiData(os.getenv("GITHUB_TOKEN", "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"), self.db)
-        
+        if update_ci:
+            self.ci_data = CiData(os.getenv("GITHUB_TOKEN", "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"), self.db)
+            self.ci_data.start()
+
         print("||| Connection to the database... OK")
 
     def __del__(self):
@@ -108,7 +110,7 @@ class Main:
 
             (event, nb_ticks) = self.analyze_datapoint(date, data)
             self.push_to_db(date, data, event, nb_ticks)
-            self.ci_data.update_ci_on_database()
+            # self.ci_data.update_ci_on_database()
             
         except ConnectionError as err:
             print(err)
