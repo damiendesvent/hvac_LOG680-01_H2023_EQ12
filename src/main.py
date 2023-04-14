@@ -52,7 +52,7 @@ class Main:
         
         self.db = SessionLocal() # on se connecte à la base de données
         if update_ci:
-            self.ci_data = CiData(os.getenv("GITHUB_TOKEN", "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"), self.db)
+            self.ci_data = CiData(os.getenv("GITHUB_TOKEN", "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"), SessionLocal=SessionLocal)
             self.ci_data.start()
 
         print("||| Connection to the database... OK")

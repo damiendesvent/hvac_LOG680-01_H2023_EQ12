@@ -6,18 +6,22 @@ from src.models import Build, Workflow
 
 
 class CiData():
-    def __init__(self, github_token, db):
+    def __init__(self, github_token, SessionLocal):
         self.docker_api_url = "https://hub.docker.com/v2/namespaces/elblogbruno/repositories/hvac-log680-eq12/tags"
         self.github = "https://api.github.com/repos/damiendesvent/hvac_LOG680-01_H2023_EQ12/actions/runs?per_page=90"
         self.github_token = github_token
         
-        self.db = db 
+        # we need to create a new session for each thread because of the way sqlalchemy works with threads
+        self.SessionLocal = SessionLocal
+        self.db = SessionLocal() 
         self.old_data = []
 
     def start(self):
         threading.Thread(target=self.update).start()
         
     def update(self):
+        self.db = self.SessionLocal()  # create a new session for this thread because of the way sqlalchemy works with threads
+
         self.update_ci_on_database()
 
         # sleep for 1 minute before updating again
