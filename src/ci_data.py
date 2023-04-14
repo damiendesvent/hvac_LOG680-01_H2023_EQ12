@@ -56,6 +56,28 @@ class CiData():
         
         return response.json()
     
+    def _calculate_build_time(self, github_data, image_name):
+        # order by created_at
+        github_data = sorted(github_data, key=lambda k: k['created_at'])
+        
+        workflow_recent = github_data[-1]
+
+        if image_name == 'latest':
+            # get most recent workflow
+            created_at = datetime.datetime.strptime(workflow_recent['created_at'], "%Y-%m-%dT%H:%M:%SZ")
+            updated_at = datetime.datetime.strptime(workflow_recent['updated_at'], "%Y-%m-%dT%H:%M:%SZ")
+
+            return (updated_at - created_at).total_seconds()
+
+        for workflow in github_data:
+            if workflow['head_sha'] == image_name:
+                # get created_at and updated_at and calculate the difference
+                created_at = datetime.datetime.strptime(workflow['created_at'], "%Y-%m-%dT%H:%M:%SZ")
+                updated_at = datetime.datetime.strptime(workflow['updated_at'], "%Y-%m-%dT%H:%M:%SZ")
+                return (updated_at - created_at).total_seconds()
+            
+        return 0
+    
     def update_ci_on_database(self):
         print("Updating ci data")
         try:
@@ -65,7 +87,7 @@ class CiData():
             
             github_data = self._get_github_data()['workflow_runs']
 
-            print(len(data), len(self.old_data))
+            
 
             if len(data) != len(self.old_data) or data != self.old_data:
                 print("Update CI")
@@ -80,6 +102,7 @@ class CiData():
                             version = element["name"],
                             size = element["full_size"],
                             date = str(date),
+                            build_time = self._calculate_build_time(github_data, element["name"]),
                         )
 
                         build.save(self.db)
